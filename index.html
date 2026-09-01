@@ -854,8 +854,48 @@ function sheetSearch(){
 function offFields(){
   return "code,product_name,product_name_pl,brands,nutriments,serving_quantity,serving_size";
 }
+function normName(v){
+  if(v == null) return "";
+  if(typeof v === "string") return v;
+  if(typeof v === "object") return v.pl || v.en || v.main || Object.values(v)[0] || "";
+  return String(v);
+}
 function pickName(p){
-  return p.product_name_pl || p.product_name || (p.brands || "produkt") || "produkt";
+  return normName(p.product_name_pl) || normName(p.product_name) || normName(p.brands) || "produkt";
+}
+/* wyniki z nowego silnika (search-a-licious) mają czasem inny kształt niż ze starego */
+function normHit(h){
+  var n = h.nutriments;
+  if(!n || typeof n !== "object"){
+    n = {};
+    Object.keys(h).forEach(function(k){
+      if(k.indexOf("nutriments.") === 0) n[k.slice(11)] = h[k];
+    });
+  }
+  return {code: h.code || h._id || "", product_name: h.product_name, product_name_pl: h.product_name_pl,
+    brands: h.brands, nutriments: n, serving_quantity: h.serving_quantity, serving_size: h.serving_size};
+}
+function searchOFF(q){
+  var r = document.getElementById("res");
+  if(r) r.innerHTML = '<div class="empty">Szukam w Open Food Facts…</div>';
+  var nowy = "https://search.openfoodfacts.org/search?q=" + encodeURIComponent(q) +
+    "&page_size=20&fields=code,product_name,brands,nutriments,serving_quantity,serving_size";
+  var stary = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(q) +
+    "&search_simple=1&action=process&json=1&page_size=20&fields=" + offFields();
+  function pokaz(list){
+    list = list.filter(function(i){ return i.per100.kcal > 0; });
+    if(!list.length) throw new Error("brak wynikow");
+    showResults(list);
+  }
+  fetch(nowy).then(function(x){ if(!x.ok) throw new Error(x.status); return x.json(); })
+    .then(function(j){ pokaz((j.hits || []).map(normHit).map(toItem)); })
+    .catch(function(){
+      return fetch(stary).then(function(x){ if(!x.ok) throw new Error(x.status); return x.json(); })
+        .then(function(j){ pokaz((j.products || []).map(toItem)); });
+    })
+    .catch(function(){
+      if(r) r.innerHTML = '<div class="empty">Baza nie odpowiada. Jeśli masz opakowanie pod ręką, wpisz kod kreskowy — ta część działa niezależnie. Albo dodaj produkt ręcznie, zapamiętam go w ulubionych.</div>';
+    });
 }
 function toItem(p){
   var n = p.nutriments || {};
@@ -917,18 +957,6 @@ function showResults(list){
       '<div class="dt">'+Math.round(it.per100.kcal)+' kcal / 100 g · B '+r1(it.per100.p)+' T '+r1(it.per100.f)+' W '+r1(it.per100.c)+'</div></div>' +
       '<div class="kc">+</div></div>';
   }).join("") + '</div>';
-}
-function searchOFF(q){
-  var r = document.getElementById("res");
-  if(r) r.innerHTML = '<div class="empty">Szukam w Open Food Facts…</div>';
-  var url = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(q) +
-    "&search_simple=1&action=process&json=1&page_size=20&fields=" + offFields();
-  fetch(url).then(function(x){ return x.json(); }).then(function(j){
-    var list = (j.products || []).map(toItem).filter(function(i){ return i.per100.kcal > 0; });
-    showResults(list);
-  }).catch(function(){
-    if(r) r.innerHTML = '<div class="empty">Brak połączenia z bazą. Sprawdź internet albo dodaj produkt ręcznie.</div>';
-  });
 }
 function lookupCode(code){
   var r = document.getElementById("res");
