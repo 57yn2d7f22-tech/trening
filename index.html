@@ -568,8 +568,11 @@ function vJedzenie(){
       macroBar("Tłuszcz", t.f, g.fat, "#8A94A0", "g") +
       macroBar("Węgle", t.c, g.carbs, "#8A94A0", "g") +
     '</div></div>' +
-    '<div class="row s12 mut" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">' +
-      '<span>błonnik '+Math.round(t.fib)+' g</span><span>cukry '+Math.round(t.sug)+' g</span><span>sód '+Math.round(t.na*1000)+' mg</span></div>' +
+    '<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">' +
+      limitBar("Cukry", t.sug, Math.round(gK*0.10/4), "g", "max") +
+      limitBar("Sód", t.na*1000, 2000, "mg", "max") +
+      limitBar("Błonnik", t.fib, Math.round(gK/1000*14), "g", "min") +
+    '</div>' + alerts(t, g) +
     '</div>';
 
   h += '<div class="grid2" style="margin-bottom:10px">' +
@@ -597,6 +600,31 @@ function vJedzenie(){
   });
   h += '</div><div style="height:20px"></div>';
   return h;
+}
+function limitBar(name, v, lim, unit, mode){
+  lim = Math.max(1, lim);
+  var pct = Math.min(100, v/lim*100);
+  var bad = mode === "max" ? v > lim : false;
+  var col = bad ? "var(--bad)" : (mode === "min" ? (v >= lim ? "var(--ok)" : "#8A94A0") : "#47B4C6");
+  var suffix = mode === "max" ? " limit" : " cel";
+  return '<div class="macro"><div class="row"><span class="mut">'+name+'</span>' +
+    '<span class="num"'+(bad?' style="color:var(--bad)"':'')+'>'+Math.round(v)+' / '+Math.round(lim)+' '+unit+suffix+'</span></div>' +
+    '<div class="bar"><i style="width:'+pct+'%;background:'+col+'"></i></div></div>';
+}
+function alerts(t, g){
+  var out = [], gK = g.kcal;
+  var sugLim = gK*0.10/4;
+  if(t.kcal > gK*1.1) out.push({t:"Kalorie ponad cel o " + Math.round(t.kcal - gK) + " kcal.", bad:1});
+  if(t.sug > sugLim) out.push({t:"Cukry ponad limit o " + Math.round(t.sug - sugLim) + " g. To suma z etykiet, więc siedzą tam też cukry z owoców i mleka, nie tylko dosypane.", bad:1});
+  if(t.na*1000 > 2000) out.push({t:"Sód ponad 2000 mg, czyli więcej niż 5 g soli.", bad:1});
+  if(t.kcal > gK*0.6){
+    if(t.p < g.protein*0.7) out.push({t:"Białka brakuje: " + Math.round(g.protein - t.p) + " g do celu.", bad:0});
+    if(t.fib < gK/1000*14*0.6) out.push({t:"Mało błonnika jak na zjedzone kalorie.", bad:0});
+  }
+  if(!out.length) return "";
+  return '<div class="hint">' + out.map(function(o){
+    return '<div style="margin-bottom:4px'+(o.bad?';color:var(--bad)':'')+'">' + esc(o.t) + '</div>';
+  }).join("") + '</div>';
 }
 function macroBar(name, v, goal, color, unit){
   goal = Math.max(1, goal);
@@ -1094,6 +1122,12 @@ function sheetManual(){
       '<div><label class="f">Tłuszcz</label><input id="m_f" inputmode="decimal"></div>' +
       '<div><label class="f">Węgle</label><input id="m_c" inputmode="decimal"></div>' +
     '</div>' +
+    '<div class="grid3" style="margin-top:10px">' +
+      '<div><label class="f">Błonnik</label><input id="m_fib" inputmode="decimal" placeholder="—"></div>' +
+      '<div><label class="f">Cukry</label><input id="m_sug" inputmode="decimal" placeholder="—"></div>' +
+      '<div><label class="f">Sód mg</label><input id="m_na" inputmode="decimal" placeholder="—"></div>' +
+    '</div>' +
+    '<div class="hint">Trzy ostatnie możesz pominąć. Wpisz je, jeśli chcesz pilnować limitu cukru i soli.</div>' +
     '<button class="btn aqua wide" data-act="savemanual" style="margin-top:12px">Dalej, podaj porcję</button>');
 }
 function sheetMeasure(){
@@ -1285,7 +1319,9 @@ document.addEventListener("click", function(ev){
     var it = {name: document.getElementById("m_name").value.trim() || "produkt", per100:{
       kcal: nOr(document.getElementById("m_kcal").value,0), p: nOr(document.getElementById("m_p").value,0),
       f: nOr(document.getElementById("m_f").value,0), c: nOr(document.getElementById("m_c").value,0),
-      fib:0, na:0, sug:0
+      fib: nOr(document.getElementById("m_fib").value,0),
+      na: nOr(document.getElementById("m_na").value,0)/1000,
+      sug: nOr(document.getElementById("m_sug").value,0)
     }, code:""};
     sheetPortion(it);
     return;
