@@ -146,6 +146,7 @@ nav button.on.k{color:var(--kitchen)}
 .tabs button{flex:1;padding:9px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--mut)}
 .tabs button.on{background:var(--surface2);color:var(--txt)}
 video{width:100%;border-radius:12px;background:#000;display:block}
+.alert{border-color:var(--iron);background:rgba(255,176,32,.06)}
 .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;margin-top:6px}
 .it .dot + div{flex:1}
 .foldhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -188,48 +189,47 @@ video{width:100%;border-radius:12px;background:#000;display:block}
 /* ---------- PLAN ---------- */
 var PLAN = {
   upperA:{name:"Upper A",day:"poniedziałek",kind:"upper",ex:[
-    {id:"inc_bench",n:"Wyciskanie skos (sztanga)",s:4,r:"6-8",rir:"1-2",rest:75,w:50,ss:"A1",why:"Z logu: 60kg x3 → ~50kg na 6-8 z RIR 1-2"},
-    {id:"pullup",n:"Podciąganie nachwytem",s:4,r:"6-8",rir:"1-2",rest:75,w:12,plus:1,ss:"A1",why:"Z logu: +15kg x7 → +12kg utrzymasz przez 4 serie"},
-    {id:"ohp_db",n:"Wyciskanie hantli nad głowę",s:3,r:"8-10",rir:"1-2",rest:60,w:18,ss:"A2",why:"Szacunek – brak danych, sprawdź w 1. tygodniu"},
-    {id:"row_db",n:"Wiosłowanie hantlem",s:3,r:"10-12",rir:"1",rest:75,w:18,ss:"A2",why:"Z logu: 21kg x10 jako ostatnia seria piramidy"},
-    {id:"lat_raise",n:"Wznosy bokiem",s:4,r:"12-20",rir:"0-1",rest:20,w:6,ss:"A3",why:"Z logu: 9kg x8 → 6kg na wyższy zakres"},
-    {id:"tri_cable",n:"Prostowanie tricepsu na wyciągu",s:3,r:"10-15",rir:"0-1",rest:20,w:20,ss:"A3",why:"Z logu: 25kg x8 → 20kg na 10-15"},
-    {id:"hammer",n:"Uginanie młotkowe",s:3,r:"10-12",rir:"1",rest:75,w:10,ss:"A3",why:"Lekko – łokieć bolał przy EZ, wchodzimy ostrożnie"}
+    {id:"inc_bench",n:"Wyciskanie skos (sztanga)",s:4,r:"6-8",rir:"1-2",rest:150,w:50,why:"Z logu: 60kg x3 → ~50kg na 6-8 z RIR 1-2. Pełna przerwa, to główny bój dnia."},
+    {id:"pullup",n:"Podciąganie nachwytem",s:4,r:"6-8",rir:"1-2",rest:150,w:12,plus:1,why:"Z logu: +15kg x7 → +12kg utrzymasz przez 4 serie"},
+    {id:"ohp_db",n:"Wyciskanie hantli nad głowę",s:3,r:"8-10",rir:"1-2",rest:120,w:18,why:"Szacunek – brak danych, sprawdź w 1. tygodniu"},
+    {id:"row_db",n:"Wiosłowanie hantlem",s:3,r:"10-12",rir:"1",rest:90,w:18,why:"Z logu: 21kg x10 jako ostatnia seria piramidy"},
+    {id:"lat_raise",n:"Wznosy bokiem",s:5,r:"12-20",rir:"0-1",rest:15,w:6,ss:"A3",why:"Z logu: 9kg x8 → 6kg na wyższy zakres"},
+    {id:"tri_cable",n:"Prostowanie tricepsu na wyciągu",s:4,r:"10-15",rir:"0-1",rest:15,w:20,ss:"A3",why:"Z logu: 25kg x8 → 20kg na 10-15"},
+    {id:"hammer",n:"Uginanie młotkowe",s:4,r:"10-12",rir:"1",rest:60,w:10,ss:"A3",why:"Lekko – łokieć bolał przy EZ, wchodzimy ostrożnie"}
   ]},
   lowerA:{name:"Lower A",day:"wtorek",kind:"lower",ex:[
     {id:"squat",n:"Przysiad ze sztangą",s:4,r:"6-8",rir:"2",rest:180,w:60,test:1,why:"TEST – brak danych o nogach, tydzień 1 to rozpoznanie"},
     {id:"rdl",n:"RDL",s:3,r:"8-10",rir:"2",rest:150,w:60,test:1,why:"TEST – zacznij lekko, technika przed ciężarem"},
     {id:"leg_press",n:"Wypychanie na suwnicy",s:3,r:"10-12",rir:"1",rest:120,w:80,test:1,why:"TEST – dobierz tak, by 12. powtórzenie było ciężkie"},
-    {id:"leg_curl_lie",n:"Uginanie nóg leżąc",s:3,r:"10-15",rir:"0-1",rest:20,w:30,test:1,ss:"L1",why:"TEST"},
-    {id:"calf_stand",n:"Łydki stojąc",s:4,r:"8-12",rir:"0-1",rest:75,w:40,test:1,ss:"L1",why:"TEST"}
+    {id:"leg_curl_lie",n:"Uginanie nóg leżąc",s:3,r:"10-15",rir:"0-1",rest:90,w:30,test:1,why:"TEST"},
+    {id:"calf_stand",n:"Łydki stojąc",s:4,r:"8-12",rir:"0-1",rest:15,w:40,test:1,ss:"L1",why:"TEST"},
+    {id:"leg_raise",n:"Wznosy nóg w zwisie",s:4,r:"8-15",rir:"1",rest:60,w:0,bw:1,ss:"L1",why:"Brzuch: proste brzucha plus zginacze bioder. Nogi proste = trudniej, ugięte = łatwiej."}
   ]},
   upperB:{name:"Upper B",day:"czwartek",kind:"upper",ex:[
-    {id:"dips",n:"Dipy z ciężarem",s:4,r:"6-8",rir:"1",rest:90,w:15,plus:1,ss:"B1",why:"Z logu: +20kg x6 → +15kg utrzymasz przez 4 serie"},
-    {id:"row_bb",n:"Wiosłowanie sztangą / seated row",s:4,r:"8-10",rir:"1-2",rest:75,w:50,ss:"B1",why:"Szacunek z wiosłowania hantlem 18kg"},
-    {id:"bench",n:"Wyciskanie płaskie (sztanga)",s:3,r:"8-10",rir:"1-2",rest:75,w:52.5,ss:"B2",why:"Szacunek: płaskie ≈ skos +5-10%"},
-    {id:"pulldown",n:"Ściąganie drążka szeroko",s:3,r:"10-12",rir:"1",rest:75,w:55,ss:"B2",why:"Szacunek z podciągania +12kg"},
-    {id:"lat_raise_b",n:"Wznosy bokiem",s:3,r:"12-20",rir:"0-1",rest:20,w:6,ss:"B3",why:"Dodane: boczny akton barku miał tylko 4 serie w tygodniu, to za mało"},
-    {id:"face_pull",n:"Face pull",s:3,r:"15-20",rir:"1",rest:20,w:12.5,ss:"B3",why:"Z logu: 15kg x12 → 12,5kg na wyższy zakres"},
-    {id:"fly_cable",n:"Rozpiętki na wyciągu",s:3,r:"12-15",rir:"0-1",rest:20,w:10,ss:"B3",why:"Szacunek – dobierz na czucie"},
-    {id:"curl_incline",n:"Uginanie bicepsa na skosie",s:3,r:"10-12",rir:"1",rest:75,w:8,ss:"B3",why:"Lekko – wariant przyjazny dla łokcia"}
+    {id:"dips",n:"Dipy z ciężarem",s:4,r:"6-8",rir:"1",rest:150,w:15,plus:1,why:"Z logu: +20kg x6 → +15kg utrzymasz przez 4 serie"},
+    {id:"row_bb",n:"Wiosłowanie sztangą / seated row",s:4,r:"8-10",rir:"1-2",rest:150,w:50,why:"Szacunek z wiosłowania hantlem 18kg"},
+    {id:"bench",n:"Wyciskanie płaskie (sztanga)",s:3,r:"8-10",rir:"1-2",rest:150,w:52.5,why:"Szacunek: płaskie ≈ skos +5-10%"},
+    {id:"pulldown",n:"Ściąganie drążka szeroko",s:3,r:"10-12",rir:"1",rest:90,w:55,why:"Szacunek z podciągania +12kg"},
+    {id:"lat_raise_b",n:"Wznosy bokiem",s:3,r:"12-20",rir:"0-1",rest:15,w:6,ss:"B3",why:"Dodane: boczny akton barku miał 4 serie w tygodniu, to za mało jak na grupę, która lubi objętość"},
+    {id:"face_pull",n:"Face pull",s:3,r:"15-20",rir:"1",rest:15,w:12.5,ss:"B3",why:"Z logu: 15kg x12 → 12,5kg na wyższy zakres"},
+    {id:"fly_cable",n:"Rozpiętki na wyciągu",s:3,r:"12-15",rir:"0-1",rest:15,w:10,ss:"B3",why:"Szacunek – dobierz na czucie"},
+    {id:"curl_incline",n:"Uginanie bicepsa na skosie",s:4,r:"10-12",rir:"1",rest:60,w:8,ss:"B3",why:"Lekko – wariant przyjazny dla łokcia"}
   ]},
   lowerB:{name:"Lower B",day:"piątek",kind:"lower",ex:[
     {id:"deadlift",n:"Martwy ciąg",s:3,r:"5-6",rir:"2-3",rest:180,w:80,test:1,why:"TEST – brak danych, zaczynasz z zapasem"},
-    {id:"bulgarian",n:"Przysiady bułgarskie",s:3,r:"8-12",rir:"1",rest:90,w:10,each:1,test:1,why:"TEST – hantle w dłoniach (2 ×)"},
-    {id:"leg_ext",n:"Prostowanie nóg",s:3,r:"12-15",rir:"0-1",rest:20,w:30,test:1,ss:"L2",why:"TEST"},
-    {id:"leg_curl_sit",n:"Uginanie nóg siedząc",s:3,r:"10-12",rir:"0-1",rest:75,w:30,test:1,ss:"L2",why:"TEST"},
-    {id:"calf_sit",n:"Łydki siedząc",s:4,r:"12-15",rir:"0-1",rest:60,w:30,test:1,why:"TEST"}
+    {id:"bulgarian",n:"Przysiady bułgarskie",s:3,r:"8-12",rir:"1",rest:120,w:10,each:1,test:1,why:"TEST – hantle w dłoniach (2 ×)"},
+    {id:"leg_ext",n:"Prostowanie nóg",s:3,r:"12-15",rir:"0-1",rest:75,w:30,test:1,why:"TEST"},
+    {id:"leg_curl_sit",n:"Uginanie nóg siedząc",s:3,r:"10-12",rir:"0-1",rest:75,w:30,test:1,why:"TEST"},
+    {id:"calf_sit",n:"Łydki siedząc",s:4,r:"12-15",rir:"0-1",rest:15,w:30,test:1,ss:"L2",why:"TEST"},
+    {id:"dragon",n:"Dragon flag (progresja)",s:4,r:"4-8",rir:"1",rest:60,w:0,bw:1,ss:"L2",why:"Skill przeniesiony z rozgrzewki tutaj, gdzie jest świeży brzuch i pełna przerwa. Progresja: ugięte nogi → jedna noga prosta → obie proste → same negatywy."},
+    {id:"cable_crunch",n:"Spięcia brzucha na wyciągu",s:3,r:"10-15",rir:"0-1",rest:60,w:25,why:"Jedyne ćwiczenie brzucha, w którym dokładasz kilogramy. Brzuch rośnie od obciążenia tak samo jak reszta."}
   ]}
 };
 var SSINFO = {
-  A1:{t:"Para 1: klatka + plecy",d:"Seria skosu, 75 s, seria podciągania, 75 s, wracasz. Klatka odpoczywa 3 min mimo że stoisz cały czas."},
-  A2:{t:"Para 2: barki + plecy",d:"Wyciskanie hantli, 60 s, wiosłowanie, 75 s, wracasz."},
-  A3:{t:"Trójka na koniec",d:"Wznosy → 20 s → triceps → 20 s → młotkowe → 75 s. Czwartą serię wznosów robisz sam."},
-  B1:{t:"Para 1: klatka + plecy",d:"Dipy, 90 s, wiosłowanie sztangą, 75 s, wracasz."},
-  B2:{t:"Para 2: klatka + plecy",d:"Wyciskanie płaskie, 75 s, ściąganie drążka, 75 s, wracasz."},
-  B3:{t:"Czwórka na koniec",d:"Wznosy → face pull → rozpiętki → biceps, po 20 s między nimi, 75 s po całej rundzie."},
-  L1:{t:"Para na koniec",d:"Uginanie nóg, 20 s, łydki, 75 s, wracasz. Czwartą serię łydek robisz sam."},
-  L2:{t:"Para",d:"Prostowanie nóg, 20 s, uginanie siedząc, 75 s, wracasz."}
+  A3:{t:"Blok izolacji na koniec",d:"Wznosy → 15 s → triceps → 15 s → młotkowe → 60 s. Wznosów masz jedną serię więcej, robisz ją na końcu."},
+  B3:{t:"Blok izolacji na koniec",d:"Wznosy → face pull → rozpiętki → biceps, po 15 s między nimi, 60 s po całej rundzie."},
+  L1:{t:"Łydki i brzuch razem",d:"Seria łydek, 15 s, wznosy nóg, 60 s, wracasz. Te dwie rzeczy sobie nie przeszkadzają."},
+  L2:{t:"Łydki i brzuch razem",d:"Seria łydek, 15 s, dragon flag, 60 s, wracasz."}
 };
 var WARM = {
   upper:[
@@ -265,12 +265,14 @@ var RULES = [
  "Jeden ciężar na wszystkie serie robocze. Rozgrzewki NIE liczysz jako serii.",
  "Progresja: górny zakres powtórzeń we WSZYSTKICH seriach → +2,5 kg góra / +5 kg dół → wracasz do dolnego zakresu.",
  "RIR = ile powtórzeń zostawiasz w zapasie. RIR 1 znaczy: jeszcze jedno dałbyś radę, ale ledwo.",
- "Deload co 7-8 tygodni: te same ciężary, połowa serii.",
+ "Duże boje idą pojedynczo, z pełną przerwą 2,5-3 min. Tego się nie skraca, bo tu powstaje większość bodźca.",
+ "W żółtej ramce są tylko izolacje na koniec. Robisz je naprzemiennie, bo małe mięśnie nie konkurują o oddech.",
+ "Brzuch trenujesz w dni nóg: wznosy nóg we wtorek, dragon flag i spięcia na wyciągu w piątek.",
+ "Dragon flag progresujesz wariantem, nie ciężarem: ugięte nogi → jedna prosta → obie proste → same negatywy.",
+ "Deload co 7 tygodni: te same ciężary, połowa serii. Apka sama przypomni.",
  "Żółte pola = brak danych o nogach. Tydzień 1 to test, dobierz ciężar i zapisz go tutaj.",
  "Biceps: jeśli wraca ból łokcia – kończysz serię, nie przepychasz.",
- "Skille (HSPU, dragon flag) – 2-3 serie na SAM POCZĄTEK dnia Upper, przed resztą.",
- "Ćwiczenia w żółtej ramce robisz naprzemiennie, seria jednego, seria drugiego. Mięsień i tak odpoczywa 3 minuty, a ty oszczędzasz kwadrans.",
- "Budżet czasu: 70 minut od wejścia do wyjścia. Zegar na górze ekranu sesji liczy sam."
+ "Budżet czasu: 75 minut od wejścia do wyjścia. Zegar na górze ekranu sesji liczy sam."
 ];
 var DAYKEYS = ["upperA","lowerA","upperB","lowerB"];
 var EXBYID = {};
@@ -392,6 +394,13 @@ function roundStep(v, st){ return Math.max(st, Math.round(v/st)*st); }
 function judge(e, arr, kind){
   var perf = arr.filter(did);
   if(!perf.length) return null;
+  if(S.deloadWeek) return null;
+  if(e.bw){
+    var allTopBW = perf.length === arr.length && arr.every(function(x){ return !x.fail; }) &&
+      perf.every(function(x){ return nOr(x.r,0) >= topReps(e.r); });
+    return {id:e.id, n:e.n, from:0, to:0, dir:"bw", reset:true,
+      why: allTopBW ? "Trafiłeś górny zakres. Następnym razem trudniejszy wariant, nie więcej powtórzeń." : "Zostajesz na tym wariancie, dokładaj powtórzenia."};
+  }
   var cur = curWeight(e);
   var st = stepFor(e, kind);
   var fails = arr.filter(function(x){ return x.fail; }).length;
@@ -492,6 +501,19 @@ function renderNav(){
 function vTrening(){
   if(S.active) return vSession();
   var h = "";
+  var DL = deloadInfo();
+  if(DL.due){
+    h += '<div class="card alert"><div class="exname">Czas na deload</div>' +
+      '<div class="s13 mut" style="margin-top:6px;line-height:1.55">Trenujesz mocno od '+DL.since+' tygodni. Zrób jeden tydzień na połowie serii, te same ciężary. To nie jest przerwa od treningu, tylko warunek tego, żeby dalej rosło.</div>' +
+      '<div class="row2" style="margin-top:10px">' +
+        '<button class="btn" data-act="deloadon">Zaczynam deload</button>' +
+        '<button class="btn ghost" data-act="deloadskip">Jeszcze nie</button></div></div>';
+  }
+  if(S.deloadWeek){
+    h += '<div class="card alert"><div class="exname">Tydzień deloadu</div>' +
+      '<div class="s13 mut" style="margin-top:6px">Robisz połowę serii z każdego ćwiczenia, ciężary bez zmian. Apka sama uciągnie listę serii.</div>' +
+      '<button class="btn wide" data-act="deloadoff" style="margin-top:10px">Koniec deloadu</button></div>';
+  }
   h += '<h2>Plan hipertroficzny, 4 × w tygodniu</h2>';
   DAYKEYS.forEach(function(k){
     var d = PLAN[k];
@@ -555,12 +577,13 @@ function ensureActive(k){
   var sets = {};
   PLAN[k].ex.forEach(function(e){
     var arr = [];
-    for(var i = 0; i < e.s; i++){
+    var n = S.deloadWeek ? Math.max(1, Math.round(e.s/2)) : e.s;
+    for(var i = 0; i < n; i++){
       arr.push({w: curWeight(e), r: "", done: false, fail: false});
     }
     sets[e.id] = arr;
   });
-  S.active = {id: Date.now(), day: k, date: today(), sets: sets, note: "", start: Date.now(), warm:{}, stretch:{}};
+  S.active = {id: Date.now(), day: k, date: today(), sets: sets, note: "", start: Date.now(), warm:{}, stretch:{}, deload: S.deloadWeek ? 1 : 0};
 }
 
 function fold(id, title, sub, inner, openDefault){
@@ -597,7 +620,7 @@ function vSession(){
     listBlock(WARM[d.kind], "w", "warm"), true);
 
   if(d.kind === "upper"){
-    h += '<div class="card s13 mut">Skille (HSPU, dragon flag): 2-3 serie teraz, przed resztą.</div>';
+    h += '<div class="card s13 mut">HSPU: 2-3 serie teraz, jeśli masz ochotę. Dragon flag przeniosłem do dnia nóg.</div>';
   }
 
   var openSS = null;
@@ -630,7 +653,9 @@ function vSession(){
     });
     var hint = "";
     var j = judge(e, arr, d.kind);
-    if(j && j.dir === "up"){
+    if(j && j.dir === "bw"){
+      hint = esc(j.why);
+    } else if(j && j.dir === "up"){
       hint = '<span class="up">Następnym razem ' + r1(j.to) + ' kg zamiast ' + r1(j.from) + '.</span>';
     } else if(j && j.dir === "down"){
       hint = '<span class="down">Następnym razem ' + r1(j.to) + ' kg zamiast ' + r1(j.from) + '.</span> ' + esc(j.why);
@@ -840,6 +865,14 @@ function calcBox(){
 }
 
 /* ---------- WIDOK: STATYSTYKI ---------- */
+function deloadInfo(){
+  var ss = S.sessions.filter(function(s){ return !s.deload; });
+  var mark = S.lastDeload || (S.sessions.length ? S.sessions[0].date : null);
+  if(!mark) return {weeks:0, due:false, since:0};
+  var since = Math.floor((new Date(today()) - new Date(mark)) / 86400000 / 7);
+  var hard = S.sessions.filter(function(s){ return s.date > mark && !s.deload; }).length;
+  return {weeks:since, due: since >= 7 && hard >= 16, since:since, hard:hard};
+}
 function avgRange(from, to){
   var a = S.measures.filter(function(m){ return m.weight && m.date >= from && m.date <= to; });
   if(!a.length) return null;
@@ -919,7 +952,19 @@ function assess(){
     else out.push({s:"warn", t:"Czas: średnio "+Math.round(dav)+" min zamiast "+SESS_BUDGET+". Skracaj gadanie między seriami, przerwy pilnuje timer."});
   }
 
-  /* 6. nieudane serie */
+  /* 6. sen */
+  var sl = S.measures.filter(function(m){ return m.sleep && m.date >= daysAgo(9); }).map(function(m){ return m.sleep; });
+  if(sl.length >= 3){
+    max += 2;
+    var sav = sl.reduce(function(a,b){ return a+b; }, 0) / sl.length;
+    if(sav >= 7){ score += 2; out.push({s:"ok", t:"Sen: średnio "+r1(sav)+" h. Tyle wystarcza, żeby trening się odbudował."}); }
+    else if(sav >= 6){ score += 1; out.push({s:"warn", t:"Sen: średnio "+r1(sav)+" h. Poniżej siedmiu regeneracja i apetyt zaczynają siadać."}); }
+    else out.push({s:"bad", t:"Sen: średnio "+r1(sav)+" h. To jest najprawdopodobniej twoje wąskie gardło, nie plan ani jedzenie."});
+  } else {
+    out.push({s:"info", t:"Sen: wpisuj godziny przy pomiarach, to dołożę go do oceny. Bez tego oceniam po ciemku."});
+  }
+
+  /* 7. nieudane serie */
   var fails = 0, tot = 0;
   s14.forEach(function(s){
     Object.keys(s.sets || {}).forEach(function(id){
@@ -950,7 +995,7 @@ function vStaty(){
       return '<div class="it"><span class="dot" style="background:'+col+'"></span>' +
         '<div class="s13" style="line-height:1.55">'+esc(it.t)+'</div></div>';
     }).join("") + '</div>' +
-    '<div class="hint">Ocena z sześciu sygnałów: regularność, progresja siłowa, tempo wagi, białko, długość sesji i udział nieudanych serii.</div></div>';
+    '<div class="hint">Ocena z siedmiu sygnałów: regularność, progresja siłowa, tempo wagi, białko, sen, długość sesji i udział nieudanych serii.</div></div>';
   return h0 + vStaty0();
 }
 function vStaty0(){
@@ -1039,7 +1084,7 @@ function render(){
 }
 
 /* ---------- TIMER ---------- */
-var SESS_BUDGET = 70;
+var SESS_BUDGET = 75;
 function fmtMin(m){ return m < 60 ? m + " min" : Math.floor(m/60) + " h " + (m%60) + " min"; }
 var clockTick = setInterval(function(){
   if(!S.active || !S.active.start) return;
@@ -1382,6 +1427,8 @@ function refreshPortion(){
   if(el) el.innerHTML = nutrPreview(portionGrams());
 }
 function sheetProgress(chg){
+  var bw = chg.filter(function(j){ return j.dir === "bw"; });
+  chg = chg.filter(function(j){ return j.dir !== "bw"; });
   var ups = chg.filter(function(j){ return j.dir === "up"; }).length;
   var dns = chg.filter(function(j){ return j.dir === "down"; }).length;
   var top = ups ? (ups + (ups === 1 ? " ciężar w górę" : " ciężary w górę")) : (dns ? dns + " w dół" : "Ciężary bez zmian");
@@ -1399,6 +1446,11 @@ function sheetProgress(chg){
         '<button class="btn sm ghost" data-act="chgw" data-id="'+j.id+'" data-v="2.5">+</button>' +
       '</div></div>';
   });
+  if(bw.length){
+    h += '<div class="hint">' + bw.map(function(j){
+      return '<div style="margin-bottom:4px"><b>'+esc(j.n)+'</b> — '+esc(j.why)+'</div>';
+    }).join("") + '</div>';
+  }
   h += '<button class="btn primary wide" data-act="saveprog" style="margin-top:14px">Gotowe</button>';
   sheet(h);
 }
@@ -1428,6 +1480,9 @@ function sheetMeasure(){
       '<div><label class="f">Ramię</label><input id="ms_arm" inputmode="decimal" pattern="[0-9.,]*" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>' +
       '<div><label class="f">Udo</label><input id="ms_thigh" inputmode="decimal" pattern="[0-9.,]*" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>' +
     '</div>' +
+    '<div style="margin-top:10px"><label class="f">Sen ostatniej nocy (godziny)</label>' +
+    '<input id="ms_sleep" inputmode="decimal" placeholder="np. 7,5" pattern="[0-9.,]*" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>' +
+    '<div class="hint">Sen możesz wpisywać sam, bez reszty pomiarów. To jedyna rzecz poza jedzeniem, która realnie decyduje o tym, czy trening się w cokolwiek zamieni.</div>' +
     '<button class="btn primary wide" data-act="savemeasure" style="margin-top:12px">Zapisz pomiar</button>');
 }
 
@@ -1492,6 +1547,9 @@ document.addEventListener("click", function(ev){
 
   /* trening */
   if(a === "startday"){ ensureActive(b.dataset.k); save(); render(); window.scrollTo(0,0); return; }
+  if(a === "deloadon"){ S.deloadWeek = 1; S.lastDeload = today(); save(); render(); toast("Tydzień deloadu włączony"); return; }
+  if(a === "deloadoff"){ S.deloadWeek = 0; S.lastDeload = today(); save(); render(); toast("Wracamy do pełnej objętości"); return; }
+  if(a === "deloadskip"){ S.lastDeload = today(); save(); render(); return; }
   if(a === "fold"){
     if(!S.ui.fold) S.ui.fold = {};
     var fk = b.dataset.k;
@@ -1657,9 +1715,11 @@ document.addEventListener("click", function(ev){
       waist: nOr(document.getElementById("ms_waist").value, null),
       chest: nOr(document.getElementById("ms_chest").value, null),
       arm: nOr(document.getElementById("ms_arm").value, null),
-      thigh: nOr(document.getElementById("ms_thigh").value, null)};
-    S.measures = S.measures.filter(function(z){ return z.date !== m.date; });
-    S.measures.push(m);
+      thigh: nOr(document.getElementById("ms_thigh").value, null),
+      sleep: nOr(document.getElementById("ms_sleep").value, null)};
+    var prev = S.measures.filter(function(z){ return z.date === m.date; })[0];
+    if(prev){ Object.keys(m).forEach(function(kk){ if(m[kk] !== null) prev[kk] = m[kk]; }); }
+    else S.measures.push(m);
     if(m.weight) S.profile.weight = m.weight;
     save(); closeSheet(); render(); toast("Pomiar zapisany");
     return;
@@ -1732,6 +1792,9 @@ load().then(function(){
   if(!S.ui) S.ui = {};
   S.ui.foodDay = today();
   render();
+  if("serviceWorker" in navigator && location.protocol === "https:"){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  }
 });
 </script>
 </body>
