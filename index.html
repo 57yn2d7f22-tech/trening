@@ -168,8 +168,11 @@ video{width:100%;border-radius:12px;background:#000;display:block}
 .clock span:first-child{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
 .clock.over{border-color:var(--bad)}
 .clock.over span:first-child{color:var(--bad)}
-.camwrap{position:relative}
-.camline{position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--bad);opacity:.85;border-radius:2px;pointer-events:none}
+.camwrap{position:relative;height:34vh;max-height:260px;min-height:150px;overflow:hidden;border-radius:12px}
+.camwrap video{height:100%;width:100%;object-fit:cover;border-radius:12px}
+.camline{position:absolute;left:6%;right:6%;top:50%;height:2px;background:var(--bad);opacity:.9;border-radius:2px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
+.scanmsg{font-size:12.5px;color:var(--mut);text-align:center;padding:8px 0}
+#scanlog{max-height:22vh;overflow:auto}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(120px + env(safe-area-inset-bottom));background:var(--surface2);border:1px solid var(--line);padding:11px 16px;border-radius:11px;font-size:14px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -1293,68 +1296,136 @@ function scanStatus(msg){
   var el = document.getElementById("scanmsg");
   if(el) el.textContent = msg;
 }
+var lastCode = "", lastCodeAt = 0, scanBusy = false;
 function startScan(){
   var r = document.getElementById("res");
   if(!r) return;
-  r.innerHTML = '<div class="camwrap"><video id="cam" playsinline muted autoplay></video><div class="camline"></div></div>' +
-    '<div id="scanmsg" class="hint" style="text-align:center">Przygotowuję aparat…</div>' +
-    '<div class="row2" style="margin-top:8px">' +
+  r.innerHTML =
+    '<div class="row2" style="margin-bottom:8px">' +
       '<button class="btn" data-act="stopscan">Zamknij</button>' +
-      '<button class="btn" data-act="codeprompt">Wpisz ręcznie</button></div>';
+      '<button class="btn" data-act="codeprompt">Wpisz ręcznie</button></div>' +
+    '<div class="camwrap"><video id="cam" playsinline autoplay muted></video><div class="camline"></div></div>' +
+    '<div id="scanmsg" class="scanmsg">Przygotowuję aparat…</div>' +
+    '<div id="scanlog" class="list"></div>';
   var v = document.getElementById("cam");
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}, width:{ideal:1280}}})
-  .then(function(st){
-    scanStream = st; v.srcObject = st;
-    var p = v.play(); if(p && p.catch) p.catch(function(){});
-    scanStatus("Skieruj kod kreskowy na środek kadru.");
-    if("BarcodeDetector" in window){
-      try { return nativeLoop(v); } catch(e){}
+  lastCode = ""; lastCodeAt = 0; scanBusy = false;
+  var constraints = {video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}};
+
+  if("BarcodeDetector" in window){
+    navigator.mediaDevices.getUserMedia(constraints).then(function(st){
+      scanStream = st; v.srcObject = st;
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+      tuneCamera(st);
+      scanStatus("Trzymaj kod na czerwonej linii.");
+      nativeLoop(v);
+    }).catch(camFail);
+    return;
+  }
+
+  scanStatus("Wczytuję czytnik kodów…");
+  loadZX().then(function(okz){
+    if(!okz){ scanStatus("Nie udało się wczytać czytnika. Wpisz kod ręcznie."); return; }
+    try {
+      var hints = new Map();
+      var F = window.ZXing.BarcodeFormat, H = window.ZXing.DecodeHintType;
+      hints.set(H.POSSIBLE_FORMATS, [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E]);
+      hints.set(H.TRY_HARDER, true);
+      zxReader = new window.ZXing.BrowserMultiFormatReader(hints, 120);
+      /* Kamerę otwiera sama biblioteka. Kiedy podpinałem strumień wcześniej ręcznie,
+         ZXing czekał na zdarzenie wideo, które już przeleciało, i nigdy nie ruszał. */
+      zxReader.decodeFromConstraints(constraints, v, function(result){
+        if(result && result.getText) gotCode(result.getText());
+      }).then(function(){
+        scanStream = v.srcObject || null;
+        if(scanStream) tuneCamera(scanStream);
+        scanStatus("Trzymaj kod na czerwonej linii.");
+      }).catch(camFail);
+    } catch(e){
+      scanStatus("Czytnik nie wystartował. Wpisz kod ręcznie.");
     }
-    return loadZX().then(function(okz){
-      if(!okz){ scanStatus("Nie udało się wczytać czytnika. Wpisz kod ręcznie."); return; }
-      zxLoop(v);
-    });
-  }).catch(function(){
-    r.innerHTML = '<div class="empty">Nie mam dostępu do aparatu. Sprawdź zgodę na kamerę w ustawieniach Safari albo wpisz kod ręcznie.</div>' +
-      '<button class="btn wide" data-act="codeprompt" style="margin-top:8px">Wpisz kod</button>';
   });
+}
+function camFail(){
+  var r = document.getElementById("res");
+  if(!r) return;
+  r.innerHTML = '<div class="empty">Nie mam dostępu do aparatu. Sprawdź zgodę na kamerę w ustawieniach Safari albo wpisz kod ręcznie.</div>' +
+    '<button class="btn wide" data-act="codeprompt" style="margin-top:8px">Wpisz kod</button>';
+}
+function tuneCamera(st){
+  try {
+    var tr = st.getVideoTracks()[0];
+    if(!tr || !tr.getCapabilities) return;
+    var cap = tr.getCapabilities(), adv = [];
+    if(cap.focusMode && cap.focusMode.indexOf("continuous") >= 0) adv.push({focusMode:"continuous"});
+    if(cap.zoom && cap.zoom.max >= 1.5) adv.push({zoom:Math.min(1.5, cap.zoom.max)});
+    if(adv.length && tr.applyConstraints) tr.applyConstraints({advanced: adv}).catch(function(){});
+  } catch(e){}
 }
 function nativeLoop(v){
   var det = new window.BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});
   var loop = function(){
     if(!scanStream) return;
     det.detect(v).then(function(codes){
-      if(codes && codes.length){ gotCode(codes[0].rawValue); }
-      else scanRAF = requestAnimationFrame(loop);
+      if(codes && codes.length) gotCode(codes[0].rawValue);
+      scanRAF = requestAnimationFrame(loop);
     }).catch(function(){ scanRAF = requestAnimationFrame(loop); });
   };
   scanRAF = requestAnimationFrame(loop);
 }
-function zxLoop(v){
-  try {
-    var hints = new Map();
-    var F = window.ZXing.BarcodeFormat, H = window.ZXing.DecodeHintType;
-    hints.set(H.POSSIBLE_FORMATS, [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E]);
-    hints.set(H.TRY_HARDER, true);
-    zxReader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
-    zxReader.decodeFromStream(scanStream, v, function(result, err){
-      if(result && result.getText) gotCode(result.getText());
-    });
-  } catch(e){
-    scanStatus("Czytnik nie wystartował. Wpisz kod ręcznie.");
-  }
-}
 function gotCode(code){
-  if(!code) return;
+  code = String(code || "").trim();
+  if(!code || scanBusy) return;
+  var now = Date.now();
+  if(code === lastCode && now - lastCodeAt < 4000) return;
+  lastCode = code; lastCodeAt = now; scanBusy = true;
   if(navigator.vibrate) navigator.vibrate(60);
   beep();
-  stopScan();
-  lookupCode(String(code).trim());
+  scanStatus("Szukam w bazie…");
+  autoAdd(code);
+}
+function autoAdd(code){
+  fetch("https://world.openfoodfacts.org/api/v2/product/" + encodeURIComponent(code) + ".json")
+  .then(function(x){ return x.json(); })
+  .then(function(j){
+    if(j.status === 1 && j.product){
+      var item = toItem(j.product);
+      var ps = getPortions(item);
+      var g = ps.length ? ps[0].g : 100;
+      var lab = ps.length ? ps[0].n : "";
+      addItem(item, g, lab);
+      scanLog(item.name + " · " + Math.round(g) + " g" + (lab ? " (" + lab + ")" : ""), true);
+      scanStatus("Dodane. Skanuj następny albo zamknij.");
+      render();
+    } else {
+      scanLog("Kodu " + code + " nie ma w bazie", false);
+      scanStatus("Tego nie znam. Skanuj dalej albo dodaj ręcznie.");
+    }
+  })
+  .catch(function(){ scanStatus("Brak połączenia z bazą."); })
+  .then(function(){ scanBusy = false; });
+}
+function addItem(item, g, lab){
+  var k = g/100, d2 = S.ui.foodDay || today();
+  if(!S.food[d2]) S.food[d2] = [];
+  S.food[d2].push({name:item.name + (lab ? " · " + lab : ""), g:g, kcal:item.per100.kcal*k, p:item.per100.p*k,
+    f:item.per100.f*k, c:item.per100.c*k, fib:item.per100.fib*k, na:item.per100.na*k, sug:item.per100.sug*k});
+  S.recent = [item].concat(S.recent.filter(function(x){ return x.name !== item.name; })).slice(0,20);
+  save();
+}
+function scanLog(txt, good){
+  var el = document.getElementById("scanlog");
+  if(!el) return;
+  var row = document.createElement("div");
+  row.className = "it";
+  row.innerHTML = '<span class="dot" style="background:' + (good ? "var(--ok)" : "var(--bad)") + '"></span>' +
+    '<div class="s13" style="flex:1">' + esc(txt) + '</div>';
+  el.insertBefore(row, el.firstChild);
 }
 function stopScan(){
   if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF = null; }
   if(zxReader){ try{ zxReader.reset(); }catch(e){} zxReader = null; }
   if(scanStream){ scanStream.getTracks().forEach(function(t){ t.stop(); }); scanStream = null; }
+  scanBusy = false;
 }
 function sheetPortion(item){
   window._pick = item;
